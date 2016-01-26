@@ -9,8 +9,6 @@
 clear all;
 figure(1)
 clf
-figure(2)
-clf
 
 %% Setup
 %This part sets up the values that will be used in the calculations below. 
@@ -47,7 +45,7 @@ for i = 2:length(t) % Calculates each time step
     pause(0.0001);
     
     figure(1)
-    plot(T,z,'r','linewidth',1)
+    plot(T,z,'r','linewidth',4)
     xlabel('Temperature (C)','fontname','arial','fontsize',21)
     ylabel('Depth (m)','fontname','arial','fontsize',21)
     set(gca,'fontsize',18,'fontname','arial')
@@ -58,14 +56,11 @@ end
 
 %% Part b
 
-Tideal = z*Qm/k+Ts; % Theoretical geothermal gradient, C
-Tideal = Tideal+erfc(z)*DTs; % Gradient after a step change of DTs, C
+Tinit = z*Qm/k+Ts; % Theoretical geothermal gradient, C
+Tideal = (DTs)*erfc(z/(2*sqrt(kappa*t(length(t)))))+Tinit % Gradient after a step change of DTs, C
 
-% Tideal starts as a perfect geothermal gradient
-% I don't understand how the erfc gets calculated into Tideal.
-% I suspect it's time-dependent, but I'm not sure how.
-
-    figure(2)
+    figure(1)
+    hold on;
     plot(Tideal,z,'b','linewidth',1)
     xlabel('Temperature (C)','fontname','arial','fontsize',21)
     ylabel('Depth (m)','fontname','arial','fontsize',21)
