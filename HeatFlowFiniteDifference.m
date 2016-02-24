@@ -67,8 +67,8 @@ Tideal = (DTs)*erfc(z./(2*sqrt(kappa*t(length(t)))))+Tinit; % Gradient after a s
 %% Part c
 
 load cape_thompson.dat;
-capedepth = cape_thompson(:,1).';
-capetemp = cape_thompson(:,2).';
+capedepth = cape_thompson(:,1).'; % Depth array for Cape Thompson, transposed to be compatible with the rest of the code
+capetemp = cape_thompson(:,2).'; % Temperature array for Cape Thompson, transposed to be compatible with the rest of the code
 
 figure (1)
 hold on;
