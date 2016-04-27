@@ -22,6 +22,8 @@ figure(3)
 clf
 figure(4)
 clf
+figure(5)
+clf
 broken = 0; % flips to 1 if things get broken
 
 %% Initialize
@@ -42,7 +44,7 @@ rho_basalt = 3000;
 c_basalt = 840;
 kappa_basalt = k_basalt/(rho_basalt*c_basalt);
 L_basalt = 400000;
-dz = 40; % distance between z steps (m)
+dz = 50; % distance between z steps (m)
 zmax = 3000; % maximum depth (m)
 z = 0:dz:zmax; % depth array (m)
 dt = dz^2/(2*max(kappa_granite,kappa_basalt))/4; % maximum change in time to retain stability (s)
@@ -92,13 +94,9 @@ total_144_in_magma = magma_144 * rho_basalt *(zmax - z_magma) / 10^6;
 total_87_in_magma = magma_87 * rho_basalt * (zmax - z_magma) / 10^6;
 total_86_in_magma = magma_86 * rho_basalt * (zmax - z_magma) / 10^6;
 
-%record_Nd = zeros(length(round(t(end)/dt+1)));
 record_Nd(1) = total_143_in_magma/total_144_in_magma; % Start of an array that will record the 143/144Nd ratio through time
-%record_Sr = zeros(length(round(t(end)/dt+1)));
 record_Sr(1) = total_87_in_magma/total_86_in_magma; % To record the 87/86Sr ratio through time
-%record_t = zeros(length(round(t(end)/dt+1)));
 record_t(1) = 0; % Time starts at t = 0
-%record_percent_solid = zeros(length(round(t(end)/dt+1)));
 record_percent_liquid(1) = 100; % Magma is initially 100% liquid
 
 % Figure parameters
@@ -126,10 +124,10 @@ for i = 1:t(end)/dt % Calculates once each time step
         magma_energy = sum(T(magma_indicies)*dz)*rho_magma*c_magma; % Calculates total thermal energy of magma (J)
         T(magma_indicies) = magma_energy/rho_magma/c_magma/(dz*length(magma_indicies)); % Magma is well mixed, so it is all the same temperature (K)
         
-        total_143_in_magma = total_143_in_magma + (outflux/L_granite)*granite_143; % Addition of 143 by melting granite
-        total_144_in_magma = total_144_in_magma + (outflux/L_granite)*granite_144;
-        total_87_in_magma = total_87_in_magma + (outflux/L_granite)*granite_87;
-        total_86_in_magma = total_86_in_magma + (outflux/L_granite)*granite_86;
+        total_143_in_magma = total_143_in_magma + (outflux/L_granite)*granite_143/10^6; % Addition of 143 by melting granite
+        total_144_in_magma = total_144_in_magma + (outflux/L_granite)*granite_144/10^6;
+        total_87_in_magma = total_87_in_magma + (outflux/L_granite)*granite_87/10^6;
+        total_86_in_magma = total_86_in_magma + (outflux/L_granite)*granite_86/10^6;
         record_Nd(i+1) = total_143_in_magma/total_144_in_magma;
         record_Sr(i+1) = total_87_in_magma/total_86_in_magma;
         record_t(i+1) = i * dt / (pi*10^7); % records the time in years
@@ -147,10 +145,10 @@ for i = 1:t(end)/dt % Calculates once each time step
             liquid_basalt = liquid_basalt - frozen_basalt; % remove frozen basalt
             T(magma_indicies) = T_solid_basalt; % sets magma temperature at basalt freezing temperature
             
-            total_143_in_magma = total_143_in_magma + (outflux/L_granite)*granite_143 - frozen_basalt*magma_143; % Addition by melting granite, subtraction by freezing basalt
-            total_144_in_magma = total_144_in_magma + (outflux/L_granite)*granite_144 - frozen_basalt*magma_144;
-            total_87_in_magma = total_87_in_magma + (outflux/L_granite)*granite_87 - frozen_basalt * magma_87;
-            total_86_in_magma = total_86_in_magma + (outflux/L_granite)*granite_86 - frozen_basalt * magma_86;
+            total_143_in_magma = total_143_in_magma + (outflux/L_granite)*granite_143/10^6 - frozen_basalt*magma_143/10^6; % Addition by melting granite, subtraction by freezing basalt
+            total_144_in_magma = total_144_in_magma + (outflux/L_granite)*granite_144/10^6 - frozen_basalt*magma_144/10^6;
+            total_87_in_magma = total_87_in_magma + (outflux/L_granite)*granite_87/10^6 - frozen_basalt * magma_87/10^6;
+            total_86_in_magma = total_86_in_magma + (outflux/L_granite)*granite_86/10^6 - frozen_basalt * magma_86/10^6;
             record_Nd(i+1) = total_143_in_magma/total_144_in_magma;
             record_Sr(i+1) = total_87_in_magma/total_86_in_magma;
             record_t(i+1) = i * dt / (pi*10^7); % records the time in years
@@ -162,10 +160,10 @@ for i = 1:t(end)/dt % Calculates once each time step
             magma_energy = sum(T(magma_indicies)*dz)*rho_magma*c_magma + liquid_basalt*rho_basalt*L_basalt; % Energy of the magma plus the last basalt
             T(magma_indicies) = magma_energy/rho_magma/c_magma/(dz*length(magma_indicies)); % Temperature of the well mixed magma
             
-            total_143_in_magma = total_143_in_magma + (outflux/L_granite)*granite_143 - liquid_basalt*magma_143; % Addition by melting granite, subtraction by freezing basalt
-            total_144_in_magma = total_144_in_magma + (outflux/L_granite)*granite_144 - liquid_basalt*magma_144;
-            total_87_in_magma = total_87_in_magma + (outflux/L_granite)*granite_87 - liquid_basalt * magma_87;
-            total_86_in_magma = total_86_in_magma + (outflux/L_granite)*granite_86 - liquid_basalt * magma_86;
+            total_143_in_magma = total_143_in_magma + (outflux/L_granite)*granite_143/10^6 - liquid_basalt*magma_143/10^6; % Addition by melting granite, subtraction by freezing basalt
+            total_144_in_magma = total_144_in_magma + (outflux/L_granite)*granite_144/10^6 - liquid_basalt*magma_144/10^6;
+            total_87_in_magma = total_87_in_magma + (outflux/L_granite)*granite_87/10^6 - liquid_basalt * magma_87/10^6;
+            total_86_in_magma = total_86_in_magma + (outflux/L_granite)*granite_86/10^6 - liquid_basalt * magma_86/10^6;
             record_Nd(i+1) = total_143_in_magma/total_144_in_magma;
             record_Sr(i+1) = total_87_in_magma/total_86_in_magma;
             record_t(i+1) = i * dt / (pi*10^7); % records the time in years
@@ -182,10 +180,10 @@ for i = 1:t(end)/dt % Calculates once each time step
         magma_energy = sum(T(magma_indicies)*dz)*rho_magma*c_magma; % Calculates total thermal energy of magma (J)
         T(magma_indicies) = magma_energy/rho_magma/c_magma/(dz*length(magma_indicies)); % Temperature of the well mixed magma
         
-        total_143_in_magma = total_143_in_magma + (outflux/L_granite)*granite_143; % Addition of 143 by melting granite
-        total_144_in_magma = total_144_in_magma + (outflux/L_granite)*granite_144;
-        total_87_in_magma = total_87_in_magma + (outflux/L_granite)*granite_87;
-        total_86_in_magma = total_86_in_magma + (outflux/L_granite)*granite_86;
+        total_143_in_magma = total_143_in_magma + (outflux/L_granite)*granite_143/10^6; % Addition of 143 by melting granite
+        total_144_in_magma = total_144_in_magma + (outflux/L_granite)*granite_144/10^6;
+        total_87_in_magma = total_87_in_magma + (outflux/L_granite)*granite_87/10^6;
+        total_86_in_magma = total_86_in_magma + (outflux/L_granite)*granite_86/10^6;
         record_Nd(i+1) = total_143_in_magma/total_144_in_magma;
         record_Sr(i+1) = total_87_in_magma/total_86_in_magma;
         record_t(i+1) = i * dt / (pi*10^7); % records the time in years
@@ -236,27 +234,34 @@ for i = 1:t(end)/dt % Calculates once each time step
 end 
 
 %% Finalize
-    figure(2)
-    plot(record_t,record_Nd,'b','linewidth',3)
-    hold on
-    plot(0,record_Nd(1),'ro','linewidth',5)
-    title('143/144Nd vs time')
-    xlabel('Time (yr)','fontname','arial','fontsize',12)
-    ylabel('143/144Nd','fontname','arial','fontsize',12)
-%    axis([0 years_to_run min_Nd-.0001 max_Nd+.0001])
+figure(2)
+plot(record_t,record_Nd,'b','linewidth',3)
+hold on
+plot(0,record_Nd(1),'ro','linewidth',5)
+title('143/144Nd vs time')
+xlabel('Time (yr)','fontname','arial','fontsize',12)
+ylabel('143/144Nd','fontname','arial','fontsize',12)
+axis([0 years_to_run min_Nd max_Nd])
+
+figure(3)
+plot(record_t,record_Sr,'y','linewidth',3)
+hold on
+plot(0,record_Sr(1),'ro','linewidth',5)
+title('87/86Sr vs time')
+xlabel('Time (yr)','fontname','arial','fontsize',12)
+ylabel('87/86Sr','fontname','arial','fontsize',12)
+axis([0 years_to_run min_Sr max_Sr])
     
-    figure(3)
-    plot(record_t,record_Sr,'y','linewidth',3)
-    hold on
-    plot(0,record_Sr(1),'ro','linewidth',5)
-    title('87/86Sr vs time')
-    xlabel('Time (yr)','fontname','arial','fontsize',12)
-    ylabel('87/86Sr','fontname','arial','fontsize',12)
-%    axis([0 years_to_run min_Sr-.02 max_Sr+.02])
-    
-    figure(4)
-    plot(record_t,record_percent_liquid,'k','linewidth',3)
-    title('Percent of liquid in melt vs time')
-    xlabel('Time (yr)','fontname','arial','fontsize',12)
-    ylabel('Percent solid (%)','fontname','arial','fontsize',12)
-    axis([0 years_to_run 0 100])
+figure(4)
+plot(record_t,record_percent_liquid,'k','linewidth',3)
+title('Percent of liquid in melt vs time')
+xlabel('Time (yr)','fontname','arial','fontsize',12)
+ylabel('Percent solid (%)','fontname','arial','fontsize',12)
+axis([0 years_to_run 0 100])
+
+figure(5)
+plot(record_Sr,record_Nd,'k','linewidth',3)
+title('143/144Nd vs 87/86Sr')
+xlabel('87/86Sr','fontname','arial','fontsize',12)
+ylabel('143/144Nd','fontname','arial','fontsize',12)
+axis([min_Sr max_Sr min_Nd max_Nd])
