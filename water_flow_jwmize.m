@@ -83,8 +83,8 @@ for i = 1:imax % Loop for each time step until maximum time
         plot(x/1000,Q(2:end),'c','linewidth',3)
         title(['Water discharge after ',num2str(t(i)),' seconds'])
         xlabel('Distance (km)','fontname','arial','fontsize',24)
-        ylabel('Water depth (m)','fontname','arial','fontsize',24)
-        axis([0 xmax/1000 0 500])
+        ylabel('Discharge (m)','fontname','arial','fontsize',24)
+        axis([0 xmax/1000 0 .1])
 
         time(j) = t(i);
         water_vol(j) = sum(water)*dx;
@@ -104,7 +104,7 @@ plot(time,water_vol,'-c','linewidth',2)
 title('Total Water Volume vs Time')
 xlabel('Time (s)','fontname','arial','fontsize',21)
 ylabel('Total Volume (m^3)','fontname','arial','fontsize',21)
-axis([0 tmax 0 10000])
+axis([0 tmax 0 1000])
 
 figure(4) % Discharge over time
 plot(time,water_discharge,'-c','linewidth',2)
